@@ -7,20 +7,40 @@ Project game: "Space Rangers" based on MVC concept.
 var view = {
 	
 	// Функция showCount() - отображает на странице счет игрока
-	
+	showCount: function(count) {
+		var elCount = document.getElementById('area_game__user_count--total');
+		elCount.innerHtml = count;
+	},
 	
 	// Функция showMsg() - отображает на странице сообщение
-	
+	showMsg: function(msg) {
+		var elMessage = document.getElementById('area_game__user-message--msg');
+		elMessage.innerHtml = msg;
+	},
 
 	// Функция showShip() - отображает на странице корабль (синий или красный)
-	
+	showShip: function(id, color) {
+		var elShip = document.getElementById('id');
+		if(color === 'red') {
+			elShip.setAtribute('class', 'ship-red');
+		} else if(color === 'blue') {
+			elShip.setAtribute('class', 'ship-blue');
+		}
+	},
 
 	// Функция showAsteroid() - если игрок промахнулся, отображает астероид
-	
+	showAsteroid: function(id) {
+		var elAsteroid = document.getElementById('id');
+		elAsteroid.setAtribute('class', 'asteroid');
+	},
 
 	// Функция soundShot() - звук выстрела
-	
+	soundShot: function() {
+		var audio = document.getElementsByTagName('audio')[0];
 		// audio.play();
+		audio.pause;
+		audio.currentTime = 0;
+		audio.play;
 	}
 	
 	// Future method winner sound
@@ -53,16 +73,16 @@ var view = {
 		для того что бы сгенерировать полностью корабли в массиве "spaceships[]"
 		Функция генерирует позицию для будущего корабля, затем проверяет свободны ли данные позиции, потом добавляет
 		эту позицию в массив "spaceships"
-	*/
-	
+		*/
+		
 
-/* ----------------------------- end model ----------------------------- */
+		/* ----------------------------- end model ----------------------------- */
 
 
-/* -------------------------- begin controller ------------------------- */
+		/* -------------------------- begin controller ------------------------- */
 
-var controller = {
-	
+		var controller = {
+			
 	// Количество выстрелов
 	
 
@@ -81,22 +101,22 @@ var controller = {
 	/*
 		Функция hoverClick() - при наведении курсора на элемент ячейки таблицы меняет стиль, убирает стиль.
 		Также регистрирует тип события "onclick" на наведенном элементе, полученного от типа события "onmouseover"
-	*/
-	
-				
+		*/
+		
+		
 			// Присвоить функцию свойству onclick (тип события) элемента td.
 			// Функция - обработчик события: она вызывается, когда пользователь нажмет на ячейку таблицы.
 			// Все объекты событий имеют свойство type, определяющее тип события, и свойство target, определяющее цель события.
 			
-				
+			
 
 	/*
 		Данная функция создает для ячеек таблицы (td - кроме 1 столбца и 1 ряда) data-title атрибут
 		нужна для того что бы можно было воспользоваться функцией "hoverClick()"
 		Получим все теги "td" и поместим в переменную "elCell". Установим новый атрибут "data-title"
 		удовлетворяющим нашим условиям и поместим значения типа "А0"
-	*/
-	
+		*/
+		
 
 	// Обработчик события - браузер вызовет функцию "hBtnClick" когда возникнет событие "onclick"
 	// Функция hBtnClick() - вызовет метод shotShip() объекта "controller"
@@ -107,12 +127,12 @@ var controller = {
 	// Когда пользователь нажмет на клавишу "enter" сработает функция hBtnClick()
 	
 
-/* --------------------------- end controller -------------------------- */
+	/* --------------------------- end controller -------------------------- */
 
 
 
 
-/* --------------------- anonymous initialize function ----------------- */
+	/* --------------------- anonymous initialize function ----------------- */
 
 
 
@@ -125,7 +145,7 @@ var controller = {
 			
 			// Создаем атрибут (data-title) для ячеек td (кроме 1 столбца и 1 ряда)
 			
-		
+			
 		// event() - Здесь мы регистрируем, вызываем "Обработчики событий"
 		
 			// Регистрируем обработчик события "тип события: onclick", "цель события: элемент с id btnShot",
@@ -135,8 +155,8 @@ var controller = {
 			/* 
 				Вызываем метод "hoverClick()" объекта "controller".
 				Метод "hoverClick()" также относиться к обработчику события. Внутри данного метода уже содержаться обработчики событий.
-			*/
-			
+				*/
+				
 	// запускаем init() - выполняет запуск всего кода
 	
 /* --------------------- anonymous initialize function ----------------- */
