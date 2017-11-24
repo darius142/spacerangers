@@ -179,34 +179,105 @@ var model = {
 var controller = {
 	
 	// Количество выстрелов
-	
+	numShots: 0,
 
 	// Сгенерировать корабли
-	
+	createShips: function () {
+		model.createSpaceships();
+	},
 
 	// Функция shotShip() - соединяет в себе вызов методов из объектов "model", "view"
-	
-	
+	shotShip: function (c) {
+		var id = this.convertToID(c);
+
+		if (id) {
+			var loss = model.shot(id);
+			if (loss === true) {
+				view.showMsg("Этот корабль уже подбит!");
+			} else if (loss.status === 3) {
+				view.showShip(loss.id, loss.color);
+				view.showMsg("Флотилия из 3-х кораблей уничтожена!");
+			} else if (loss.status === 1) {
+				view.showShip(loss.id, loss.color);
+				view.showMsg("Попадание");
+			} else if (typeof(loss) == 'string') {
+				view.showAsteroid(loss);
+				view.showMsg("Промах");
+			}
+			this.numShots++;
+			if (loss && (model.destroyShips === model.numShips)) {
+				var count = Math.round((model.numShips * 3 / this.numShots) * 1000);
+				view.showMsg("Вы уничтожили все корабли!");
+				view.showCount(count);
+			}
+			view.soundShot();
+		}
+	},
 
 	// Функция convertToID() - переводит координаты типа (А2) в id(02)
-	
+	convertToID: function (c) {
+		var symbol = ["A", "B", "C", "D", "E", "F", "G"];
+
+		if (c !== null && c.length === 2) {
+
+			var firstChar = c.charAt(0);
+			var row = symbol.indexOf(firstChar);
+			var col = c.charAt(1);
+
+			if (!this.isNumeric(row) || !this.isNumeric(col)) {
+				alert("Вы ввели не числовое значение!");
+			} else if (row < 0 || row >= model.sizeSpace ||
+					   col < 0 || col >= model.sizeSpace) {
+				alert("Цель находиться за пределами карты!");
+			} else {
+				return row + col;
+			}
+
+		} else {
+			alert("Пожалуйста введите символ A - G!");
+		}
+		return null;
+	},
+
+	// Функция isNumeric() - нужна для определения переменной на число
+	isNumeric: function (n) {
+		return !isNaN(parseFloat(n)) && isFinite(n);
+	},
 
 	/*
 		Функция hoverClick() - при наведении курсора на элемент ячейки таблицы меняет стиль, убирает стиль.
 		Также регистрирует тип события "onclick" на наведенном элементе, полученного от типа события "onmouseover"
 	*/
-	
+	hoverClick: function (id) {
+		var el = document.getElementById(id);
+		el.onmouseover = function (e) {
+			e = e || window.event;
 			// console.log(e.target);
 			// console.log(this);
 			// console.log(el);
 			
-			
+			if (e.target.id !== "") {
+				e.target.style.transition = "0.5s";
+				e.target.style.backgroundColor = "rgba(104, 142, 218, 0.33)";
 				
 			// Присвоить функцию свойству onclick (тип события) элемента td.
 			// Функция - обработчик события: она вызывается, когда пользователь нажмет на ячейку таблицы.
 			// Все объекты событий имеют свойство type, определяющее тип события, и свойство target, определяющее цель события.
 			
-				
+				e.target.onclick = function () {
+					var c = this.getAttribute("data-title");
+					controller.shotShip(c)
+				};
+			}
+		};
+
+		el.onmouseout = function (e) {
+			e = e || window.event;
+			if (e.target.id !== "") {
+				e.target.style.backgroundColor = "inherit";
+			}
+		};
+	},
 
 	/*
 		Данная функция создает для ячеек таблицы (td - кроме 1 столбца и 1 ряда) data-title атрибут
@@ -214,16 +285,45 @@ var controller = {
 		Получим все теги "td" и поместим в переменную "elCell". Установим новый атрибут "data-title"
 		удовлетворяющим нашим условиям и поместим значения типа "А0"
 	*/
-	
+	createDataTitle: function () {
+		var elCell = document.getElementsByTagName("td");
+		for (var i = 0; i < elCell.length; i++) {
+			if (elCell[i].id !== "") {
+				var value = elCell[i].getAttribute("id");
+				var element = elCell[i];
+				var letter = element.parentNode.firstElementChild.firstElementChild.innerHTML;
+				
+				elCell[i].setAttribute("data-title", letter + value.charAt(1));
+			}
+		};
+	},
 
 	// Обработчик события - браузер вызовет функцию "hBtnClick" когда возникнет событие "onclick"
 	// Функция hBtnClick() - вызовет метод shotShip() объекта "controller"
-	
+	hBtnClick: function () {
+		var el = document.getElementById("crdInput");
+		var elValueUp = el.value.toUpperCase();
+
+		controller.shotShip(elValueUp);
+
+		el.value = "";
+	},
 
 	// Обработчик события - браузер вызовет функцию "hKeyPress" когда возникнет событие "onkeypress"
 	// объектом события является "e" - содержит всю информацию об этом событии
 	// Когда пользователь нажмет на клавишу "enter" сработает функция hBtnClick()
-	
+	hKeyPress: function (e) {
+		e = e || window.event;
+
+		var el = document.getElementById("btnShot");
+
+		if (e.keyCode === 13) {
+			el.click();
+			return false;
+		}
+	}
+
+};
 
 /* --------------------------- end controller -------------------------- */
 
@@ -231,33 +331,55 @@ var controller = {
 
 
 /* --------------------- anonymous initialize function ----------------- */
+(function() {
+  
+	var start = {
 
+		init: function () {
+			this.main();
+			this.control();
+			this.event();
+		},
 
 		// main() - Основной код для проекта, например подключать и настраивать плагины и т.д
-		
+		main: function () {
+
+		},
 
 		// control() - Запускаем необходимые методы объекта "controller"
-		
+		control: function () {
 
 			// Генерируем позиции кораблей и помещаем в массив spaceships
-			
+			controller.createShips();
 			// Создаем атрибут (data-title) для ячеек td (кроме 1 столбца и 1 ряда)
-			
+			controller.createDataTitle();
 
 
-		
+		},
 		
 		// event() - Здесь мы регистрируем, вызываем "Обработчики событий"
-		
+		event: function () {
+
+			var btnShot = document.getElementById("btnShot");
 			// Регистрируем обработчик события "тип события: onclick", "цель события: элемент с id btnShot",
 			// "обработчик события: hBtnClick()"
-			
+			btnShot.onclick = controller.hBtnClick;
+
+			var elCrdInput = document.getElementById("crdInput");
+			elCrdInput.onkeypress = controller.hKeyPress;
+
 			/* 
 				Вызываем метод "hoverClick()" объекта "controller".
 				Метод "hoverClick()" также относиться к обработчику события. Внутри данного метода уже содержаться обработчики событий.
 			*/
-			
+			controller.hoverClick("area_game__table");
+
+		}
+
+	};
 	
 	// запускаем init() - выполняет запуск всего кода
-	
+	start.init();
+
+}());
 /* --------------------- anonymous initialize function ----------------- */
